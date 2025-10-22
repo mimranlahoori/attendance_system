@@ -2,6 +2,9 @@
 A Laravel-based attendance management system for educational institutions.  
 This system allows you to manage classes, students, daily attendance, holidays and leave requests through a friendly web interface.
 
+# Screenshot  
+![](public/screenshots/screenshot01.png)
+
 ## 🚀 What is this project?  
 - Manage **classes** (e.g., “Class 10 – A”, section B).  
 - Manage **students** assigned to each class.  
