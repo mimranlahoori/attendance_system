@@ -32,6 +32,11 @@ class StudentController extends Controller
         return redirect()->route('students.index')->with('success', 'Student added successfully.');
     }
 
+    public function show(Student $student)
+    {
+        $classrooms = Classroom::all();
+        return view('students.show', compact('student', 'classrooms'));
+    }
     public function edit(Student $student)
     {
         $classrooms = Classroom::all();

@@ -7,12 +7,29 @@ use Illuminate\Http\Request;
 
 class ClassroomController extends Controller
 {
-     public function index()
+public function index(Request $request)
     {
-        $classrooms = Classroom::latest()->paginate(10);
-        return view('classrooms.index', compact('classrooms'));
-    }
+        $search = $request->input('search');
+        $sectionFilter = $request->input('section');
 
+        $query = Classroom::query();
+        $allSection = Classroom::all('section');
+
+        // Apply search filter
+        if ($search) {
+            $query->where('name', 'like', '%' . $search . '%')
+                  ->orWhere('section', 'like', '%' . $search . '%');
+        }
+
+        // Apply section filter if provided
+        if ($sectionFilter) {
+            $query->where('section', $sectionFilter);
+        }
+
+        $classrooms = $query->paginate(10); // Paginate with 10 items per page
+
+        return view('classrooms.index', compact('classrooms', 'search', 'sectionFilter', 'allSection'));
+    }
     public function create()
     {
         return view('classrooms.create');
@@ -29,8 +46,17 @@ class ClassroomController extends Controller
         return redirect()->route('classrooms.index')->with('success', 'Classroom added successfully.');
     }
 
-    public function edit(Classroom $classroom)
+        /**
+     * Display the specified resource.
+     */
+    public function show($classes)
     {
+        $class = Classroom::with('students')->findOrFail($classes);
+        return view('classrooms.show', compact('class'));
+    }
+    public function edit($classes)
+    {
+        $classroom = Classroom::with('students')->findOrFail($classes);
         return view('classrooms.edit', compact('classroom'));
     }
 

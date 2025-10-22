@@ -1,52 +1,99 @@
 <x-app-layout>
-    <div class="max-w-6xl mx-auto py-8">
-        <div class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-bold text-white">Attendances</h2>
-            <a href="{{ route('attendances.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
-                Mark Attendance
-            </a>
-        </div>
+    <div class="container mx-auto p-4">
+        <h2 class="text-3xl font-semibold text-gray-800 dark:text-white mb-4">Attendance for Class:
+            {{ $classroom->name }} {{ $classroom->section ? '(' . $classroom->section . ')' : '' }}
+        </h2>
 
-        <div class="overflow-x-auto bg-gray-800 p-4 rounded-xl">
-            <table class="min-w-full text-sm text-gray-300">
-                <thead>
-                    <tr class="text-left border-b border-gray-700">
-                        <th class="py-2 px-3">#</th>
-                        <th class="py-2 px-3">Student</th>
-                        <th class="py-2 px-3">Date</th>
-                        <th class="py-2 px-3">Status</th>
-                        <th class="py-2 px-3">Remarks</th>
-                        <th class="py-2 px-3 text-right">Actions</th>
+        <form method="GET" action="{{ route('attendances.index', $classroom->id) }}" class="mb-6">
+            <label for="month" class="block text-sm font-medium text-gray-800 dark:text-white mb-2">Select
+                Month:</label>
+            <input type="month" id="month" name="month" value="{{ $month }}" class="p-2 border border-gray-300 rounded"
+                onchange="this.form.submit()">
+            <button type="submit" class="ml-2 bg-blue-500 text-white px-4 py-2 rounded">Filter</button>
+            <a href="{{ route('holidays.index') }}"
+                class="bg-orange-600 text-white py-2 px-4 rounded shadow-md hover:bg-orange-700 transition duration-300 mb-4 inline-block">Holidays</a>
+            <a href="{{ route('class.attendances.classAttendanceSheet', $classroom->id) }}"
+                class="bg-green-600 text-white py-2 px-4 rounded shadow-md hover:bg-green-700 transition duration-300 mb-4 inline-block">Attendance Sheet</a>
+
+        </form>
+
+        <div class="overflow-auto">
+            <table class="min-w-full border border-gray-700 rounded-lg overflow-hidden">
+                <thead class="bg-gray-800">
+                    <tr>
+                        <th class="px-4 py-2 border border-gray-700 text-left">Student Name</th>
+                        <th class="px-4 py-2 border border-gray-700 text-center">Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($attendances as $attendance)
-                        <tr class="border-b border-gray-700">
-                            <td class="py-2 px-3">{{ $loop->iteration }}</td>
-                            <td class="py-2 px-3">{{ $attendance->student->name }}</td>
-                            <td class="py-2 px-3">{{ $attendance->date }}</td>
-                            <td class="py-2 px-3">
-                                @if($attendance->status == 'present')
-                                    <span class="text-green-400 font-semibold">Present</span>
-                                @elseif($attendance->status == 'absent')
-                                    <span class="text-red-400 font-semibold">Absent</span>
+                    @foreach ($classroom->students as $student)
+                        @php
+                            $today = now()->format('Y-m-d');
+                            $attendance = $student->attendances->where('date', $today)->first();
+                        @endphp
+                        <tr class="hover:bg-gray-800 transition">
+                            <td class="px-4 py-2 border border-gray-700">{{ $student->name }}</td>
+                            <td class="px-4 py-2 border border-gray-700 text-center">
+                                @if (!$attendance)
+                                    <button onclick="openModal('{{ $student->id }}', '{{ $student->name }}')"
+                                        class="text-green-400 hover:text-green-600 transition">
+                                        Mark Attendance
+                                    </button>
                                 @else
-                                    <span class="text-yellow-400 font-semibold">Leave</span>
+                                    <span class="text-gray-400 italic">Attendance Marked</span>
                                 @endif
-                            </td>
-                            <td class="py-2 px-3">{{ $attendance->remarks }}</td>
-                            <td class="py-2 px-3 text-right">
-                                <a href="{{ route('attendances.edit', $attendance->id) }}" class="text-blue-400 hover:text-blue-300 mr-3">Edit</a>
-                                <form action="{{ route('attendances.destroy', $attendance->id) }}" method="POST" class="inline">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="text-red-400 hover:text-red-300" onclick="return confirm('Delete this attendance?')">Delete</button>
-                                </form>
                             </td>
                         </tr>
                     @endforeach
+
                 </tbody>
             </table>
         </div>
     </div>
+
+    <!-- Modal -->
+    <div id="attendanceModal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+        <div class="bg-gray-800 p-6 rounded-lg w-96 shadow-xl">
+            <h3 class="text-lg font-semibold mb-4">Mark Attendance for <span id="studentName"></span></h3>
+
+            <form action="{{ route('classrooms.attendances.store', $classroom->id) }}" method="POST"
+                id="attendanceForm">
+                @csrf
+                <input type="hidden" name="student_id" id="studentId">
+                <input type="hidden" name="date" value="{{ now()->format('Y-m-d') }}">
+
+                <label class="block text-sm mb-2">Status:</label>
+                <select name="status" class="w-full bg-gray-700 text-white p-2 rounded mb-4">
+                    <option value="present">Present</option>
+                    <option value="absent">Absent</option>
+                    <option value="late">Late</option>
+                    <option value="leave">Leave</option>
+                    <option value="holiday">Holiday</option>
+                </select>
+
+                <label class="block text-sm mb-2">Remarks (optional):</label>
+                <textarea name="remarks" class="w-full bg-gray-700 text-white p-2 rounded mb-4"
+                    placeholder="Add any notes..."></textarea>
+
+                <div class="flex justify-end gap-3">
+                    <button type="button" onclick="closeModal()"
+                        class="bg-gray-600 hover:bg-gray-700 px-4 py-1 rounded">Cancel</button>
+                    <button type="submit" class="bg-green-600 hover:bg-green-700 px-4 py-1 rounded">Save</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+    <script>
+        function openModal(id, name) {
+            document.getElementById('studentId').value = id;
+            document.getElementById('studentName').innerText = name;
+            document.getElementById('attendanceModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('attendanceModal').classList.add('hidden');
+        }
+    </script>
 </x-app-layout>

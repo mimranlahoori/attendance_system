@@ -10,7 +10,8 @@
             <p><strong>Classroom:</strong> {{ $student->classroom->name ?? '-' }}</p>
         </div>
         <div class="mt-4">
-            <a href="{{ route('students.index') }}" class="text-blue-400 hover:underline">← Back to list</a>
+            <a href="{{ route('students.index') }}" class="text-blue-400 hover:underline">← Back to list - </a>
+            <a href="{{ route('students.attendances.studentAttendance', $student->id) }}" class="text-indigo-400 hover:text-indigo-600 transition">Show Attendance </a>
         </div>
     </div>
 </x-app-layout>

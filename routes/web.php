@@ -23,10 +23,25 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::resource('classrooms', ClassroomController::class);
+    Route::resource('classrooms.attendances', AttendanceController::class);
+    Route::get('/classrooms/{classroom}/attendance-sheet', [AttendanceController::class, 'classAttendanceSheet'])->name('class.attendances.classAttendanceSheet');
     Route::resource('students', StudentController::class);
+    Route::get('/students/{student}/attendance-details', [AttendanceController::class, 'studentAttendance'])->name('students.attendances.studentAttendance');
     Route::resource('attendances', AttendanceController::class);
+
+    // This uses Route Model Binding for the Attendance model and points to the new destroyAttendance method.
+    Route::delete('/attendances/{attendance}', [AttendanceController::class, 'destroyAttendance'])
+        ->name('attendances.destroy');
     Route::resource('holidays', HolidayController::class);
     Route::resource('leaves', LeaveRequestController::class);
+
+    // POST route for the approval action (leaves.approve)
+    Route::post('/leaves/{leaf}/approve', [LeaveRequestController::class, 'approve'])
+        ->name('leaves.approve');
+
+    // POST route for the rejection action (leaves.reject)
+    Route::post('/leaves/{leaf}/reject', [LeaveRequestController::class, 'reject'])
+        ->name('leaves.reject');
 
 });
 
