@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Attendance;
 use App\Models\Holiday;
 use App\Models\Student;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -16,7 +18,7 @@ class HolidayController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(): View
     {
         if (Auth::user()->role !== 'admin') {
             abort(403);
@@ -32,7 +34,7 @@ class HolidayController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(): View
     {
         if (Auth::user()->role !== 'admin') {
             abort(403);
@@ -46,7 +48,7 @@ class HolidayController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         if (Auth::user()->role !== 'admin') {
             abort(403);
@@ -75,7 +77,7 @@ class HolidayController extends Controller
      * @param  \App\Models\Holiday  $holiday
      * @return \Illuminate\Http\Response
      */
-    public function show(Holiday $holiday)
+    public function show(Holiday $holiday): View
     {
         if (Auth::user()->role !== 'admin') {
             abort(403);
@@ -89,7 +91,7 @@ class HolidayController extends Controller
      * @param  \App\Models\Holiday  $holiday
      * @return \Illuminate\Http\Response
      */
-    public function edit(Holiday $holiday)
+    public function edit(Holiday $holiday): View
     {
         if (Auth::user()->role !== 'admin') {
             abort(403);
@@ -105,7 +107,7 @@ class HolidayController extends Controller
      * @param  \App\Models\Holiday  $holiday
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Holiday $holiday)
+    public function update(Request $request, Holiday $holiday): RedirectResponse
     {
         if (Auth::user()->role !== 'admin') {
             abort(403);
@@ -145,7 +147,7 @@ class HolidayController extends Controller
      * @param  \App\Models\Holiday  $holiday
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Holiday $holiday)
+    public function destroy(Holiday $holiday): RedirectResponse
     {
         if (Auth::user()->role !== 'admin') {
             abort(403);
