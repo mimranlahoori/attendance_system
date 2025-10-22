@@ -14,7 +14,8 @@ return new class extends Migration {
             $table->id();
             $table->string('title'); // e.g. "Eid-ul-Fitr", "Sunday", "Independence Day"
             $table->date('date');
-            $table->enum('type', ['public', 'weekend', 'special'])->default('public');
+            $table->enum('type', ['public', 'weekend', 'special','others'])->default('public');
+            $table->boolean('is_holiday')->default(true); // Checkbox: Present or not
             $table->text('description')->nullable();
             $table->timestamps();
 

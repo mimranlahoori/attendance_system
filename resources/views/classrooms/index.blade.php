@@ -31,7 +31,9 @@
                             <td class="px-4 py-2">{{ $class->name }}</td>
                             <td class="px-4 py-2">{{ $class->section ?? '-' }}</td>
                             <td class="px-4 py-2 text-center space-x-2">
-                                <a href="{{ route('classrooms.edit', $class) }}"
+                        <a href="{{ route('classrooms.show', $class->id) }}" class="text-green-400 hover:text-green-600 transition">View</a>
+
+                                <a href="{{ route('classrooms.edit', $class->id) }}"
                                     class="text-blue-400 hover:text-blue-600">Edit</a>
 
                                 <form action="{{ route('classrooms.destroy', $class) }}" method="POST"
